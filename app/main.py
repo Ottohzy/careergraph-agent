@@ -50,20 +50,20 @@ def find_missing_skills(required_skills : list[str], candidate_skills: list[str]
 def calculate_match_rate(required_skills:list[str],candidate_skills:list[str]) -> float:
     """
     Calculate the match rate between required skills and candidate skills.  """
-    #normalized_required_skills = set(skill.strip().lower() for skill in required_skills if skill.strip() != "")
     normalized_required_skills = set()
     for skill in required_skills:
         normalized_skill = skill.strip().lower()
         if normalized_skill != "":
             normalized_required_skills.add(normalized_skill)
-    
+
     if len(normalized_required_skills) == 0:
         return 0.0  # Avoid division by zero if there are no required skills
+
     missing_skills = find_missing_skills(required_skills, candidate_skills)
     missing_count = len(missing_skills)
     required_count = len(normalized_required_skills)
-    match_rate = 1 - missing_count / required_count
-    return match_rate
+    matched_count = required_count - missing_count
+    return matched_count / required_count
     
 
 
