@@ -1,0 +1,28 @@
+{
+  "name": "Demo User",
+  "target_roles": [
+    "Agent Engineer",
+    "Python Backend Engineer"
+  ],
+  "skills": [
+    "Python",
+    " SQL ",
+    "Git",
+    "python",
+    "",
+    "   ",
+    "pytest",
+    "Docker"
+  ],
+  "experiences": [
+    {
+      "title": "CareerGraph Agent",
+      "description": "使用 Python 开发岗位技能匹配模块。",
+      "skill_tags": [
+        "Python",
+        "pytest",
+        "Git"
+      ]
+    }
+  ]
+}

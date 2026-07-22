@@ -1,0 +1,11 @@
+Agent Development Engineer
+
+Responsibilities:
+1. Develop AI Agent applications using Python.
+2. Build backend APIs and integrate large language models.
+3. Test and maintain application code.
+
+Requirements:
+1. Familiar with Python, SQL and Git.
+2. Experience with FastAPI or Flask.
+3. Understanding of Docker, RAG and large language models.

@@ -1,6 +1,6 @@
 import pytest
 
-from app.main import (find_missing_skills, calculate_match_rate, count_skills)
+from app.skill_matcher import (find_missing_skills, calculate_match_rate, count_skills,normalize_skills)
 
 def test_count_skills_normal_input():
     skills = ["Python", "Java", "Python", "C++", "java"]
@@ -86,4 +86,48 @@ def test_calculate_match_rate_decimal_result():
     result = calculate_match_rate(required_skills, candidate_skills)
     assert result == pytest.approx(2/3, rel=1e-9)
 
+def test_normalize_skills_normal_input():
+    skills = ["Python", "Java", "C++", "Python", "java"]
+    result = normalize_skills(skills)
+    assert result == {"python", "java", "c++"}
 
+def test_normalize_skills_ignore_case_and_spaces():
+    skills = [" Python ", "java", "PYTHON", "C++", "java", "  c++  ", "  ", ""]
+    result = normalize_skills(skills)
+    assert result == {"python", "java", "c++"}
+
+def test_normalize_skills_empty_input_and_only_spaces():
+    skills = ["", "   ", "  "]
+    result = normalize_skills(skills)
+    assert result == set()
+    assert normalize_skills([]) == set()
+
+def test_normalize_skills_with_duplicates():
+    skills = ["Python", "Java", "Python", "C++"]
+    result = normalize_skills(skills)
+    assert result == {"python", "java", "c++"}
+ 
+def test_normalize_skills_with_special_characters():
+    skills = ["Python!", "Java@", "C++#", "Python$", "java%"]
+    result = normalize_skills(skills)
+    assert result == {"python!", "java@", "c++#", "python$", "java%"}
+
+def test_normalize_skills_with_numbers():
+    skills = ["Python3", "Java8", "C++11", "Python3", "java8"]
+    result = normalize_skills(skills)
+    assert result == {"python3", "java8", "c++11"}
+
+def test_normalize_skills_with_mixed_characters():
+    skills = ["Python3!", "Java8@", "C++11#", "Python3$", "java8%"]
+    result = normalize_skills(skills)
+    assert result == {"python3!", "java8@", "c++11#", "python3$", "java8%"}
+
+def test_normalize_skills_with_unicode_characters():
+    skills = ["Pythön", "Jävä", "C++", "Pythön", "jävä"]
+    result = normalize_skills(skills)
+    assert result == {"pythön", "jävä", "c++"}
+
+def test_normalize_skills_with_leading_and_trailing_spaces():
+    skills = ["  Python  ", "  Java", "C++  ", "  Python", "Java  "]
+    result = normalize_skills(skills)
+    assert result == {"python", "java", "c++"}
