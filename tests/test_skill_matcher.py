@@ -1,6 +1,6 @@
 import pytest
 
-from app.skill_matcher import (find_missing_skills, calculate_match_rate, count_skills,normalize_skills)
+from app.skill_matcher import (find_missing_skills, calculate_match_rate, count_skills,normalize_skills, find_matched_skills)
 
 def test_count_skills_normal_input():
     skills = ["Python", "Java", "Python", "C++", "java"]
@@ -22,13 +22,13 @@ def test_find_missing_skills_normal_input():
     required_skills = ["JAVA", "Python", "C++"]
     candidate_skills = ["Python", "C++", "Git"]
     result = find_missing_skills(required_skills, candidate_skills)
-    assert result == ["JAVA"]
+    assert result == ["java"]
 
 def test_find_missing_skills_ignores_case_and_spaces_and_use_required_skills_name():
     required_skills=[" JAVA ", "Py  T  hon", "c++"]
     candidate_skills=["C++", "git"]
     result = find_missing_skills(required_skills, candidate_skills)
-    assert result == [" JAVA ", "Py  T  hon"]
+    assert result == ["java", "py  t  hon"]
 
 def test_find_missing_skills_empty_input_and_only_spaces():
     required_skills = ["", "   ", "  "]
@@ -48,7 +48,7 @@ def test_missing_skills_with_duplicates_in_required_skills():
     required_skills = ["Python", "Java", "Python", "C++"]
     candidate_skills = []
     result = find_missing_skills(required_skills, candidate_skills)
-    assert result == ["Python", "Java", "C++"]
+    assert result == ["c++", "java", "python"]
 
 def test_calculate_match_rate_normal_input():
     required_skills = ["Python", "Java", "C++"]
@@ -131,3 +131,68 @@ def test_normalize_skills_with_leading_and_trailing_spaces():
     skills = ["  Python  ", "  Java", "C++  ", "  Python", "Java  "]
     result = normalize_skills(skills)
     assert result == {"python", "java", "c++"}
+
+def test_find_matched_skills_with_normal_input():
+    required_skills = ["Python", "Java", "C++"]
+    candidate_skills = ["Python", "C++", "Git"]
+    result = find_matched_skills(required_skills, candidate_skills)
+    assert result == ["c++", "python"]
+
+def test_find_matched_skills_with_no_matches():
+    required_skills = ["Python", "Java", "C++"]
+    candidate_skills = ["Git", "Docker"]
+    result = find_matched_skills(required_skills, candidate_skills)
+    assert result == []
+
+def test_find_matched_skills_with_all_matches():
+    required_skills = ["Python", "Java", "C++"]
+    candidate_skills = ["Python", "Java", "C++"]
+    result = find_matched_skills(required_skills, candidate_skills)
+    assert result == ["c++", "java", "python"]
+
+def test_find_matched_skills_with_duplicates_in_required_skills():
+    required_skills = ["Python", "Java", "Python", "C++"]
+    candidate_skills = ["Python", "C++"]
+    result = find_matched_skills(required_skills, candidate_skills)
+    assert result == ["c++", "python"]
+
+def test_find_matched_skills_with_duplicates_in_candidate_skills():
+    required_skills = ["Python", "Java", "C++"]
+    candidate_skills = ["Python", "C++", "Python"]
+    result = find_matched_skills(required_skills, candidate_skills)
+    assert result == ["c++", "python"]
+
+def test_find_matched_skills_with_empty_required_skills():
+    required_skills = []
+    candidate_skills = ["Python", "C++"]
+    result = find_matched_skills(required_skills, candidate_skills)
+    assert result == []
+
+def test_find_matched_skills_with_empty_candidate_skills():
+    required_skills = ["Python", "Java", "C++"]
+    candidate_skills = []
+    result = find_matched_skills(required_skills, candidate_skills)
+    assert result == []
+
+def test_find_matched_skills_with_empty_inputs():
+    required_skills = []
+    candidate_skills = []
+    result = find_matched_skills(required_skills, candidate_skills)
+    assert result == []
+def test_find_matched_skills_with_case_insensitivity():
+    required_skills = ["Python", "Java", "C++"]
+    candidate_skills = ["python", "c++"]
+    result = find_matched_skills(required_skills, candidate_skills)
+    assert result == ["c++", "python"]
+
+def test_find_matched_skills_with_spaces_in_skills():
+    required_skills = [" Python ", " Java ", " C++ "]
+    candidate_skills = ["python", "c++"]
+    result = find_matched_skills(required_skills, candidate_skills)
+    assert result == ["c++", "python"]
+
+def test_find_matched_skills_with_special_characters():
+    required_skills = ["Python!", "Java@", "C++#"]
+    candidate_skills = ["python!", "c++#"]
+    result = find_matched_skills(required_skills, candidate_skills)
+    assert result == ["c++#", "python!"]

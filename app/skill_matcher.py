@@ -27,25 +27,10 @@ def count_skills(skills: list[str]) -> dict[str, int]:
 def find_missing_skills(required_skills : list[str], candidate_skills: list[str]) -> list[str]:
     """
     Find the skills that are required but missing from the candidate's skills."""
-    missing_skills = []
-    normalized_candidate_skills = []
-    for candidate_skill in candidate_skills:
-        normalized_candidate_skill = candidate_skill.strip().lower()
-        if normalized_candidate_skill == "":
-            continue
-        else:
-            normalized_candidate_skills.append(normalized_candidate_skill)
-    
-    added_skills = []
-    for required_skill in required_skills:
-        normalized_required_skill = required_skill.strip().lower()
-        if normalized_required_skill == "":
-            continue
-        if (normalized_required_skill not in normalized_candidate_skills and normalized_required_skill not in added_skills):
-            missing_skills.append(required_skill)
-            added_skills.append(normalized_required_skill)
-    
-    return missing_skills
+    normalized_required_skills = normalize_skills(required_skills)
+    normalized_candidate_skills = normalize_skills(candidate_skills)
+    missing_skills = normalized_required_skills - normalized_candidate_skills  # Set difference to find missing skills
+    return sorted(missing_skills)  # Return the missing skills as a sorted list
 
 def calculate_match_rate(required_skills:list[str],candidate_skills:list[str]) -> float:
     """
@@ -81,6 +66,23 @@ def normalize_skills(skills: list[str]) -> set[str]:
         if normalize_skill != "":
             normalize_skills.add(normalize_skill)
     return normalize_skills
+
+def find_matched_skills(required_skills: list[str], candidate_skills: list[str]) -> list[str]:
+    """
+    Find the skills that are required and present in the candidate's skills.
+
+    Args:
+        required_skills (list[str]): A list of required skills.
+        candidate_skills (list[str]): A list of candidate skills.
+
+    Returns:
+        list[str]: A list of matched skills.
+    """
+    normalized_required_skills = normalize_skills(required_skills)
+    normalized_candidate_skills = normalize_skills(candidate_skills)
+
+    matched_skills = normalized_required_skills & normalized_candidate_skills  # Intersection of required and candidate skills
+    return sorted(matched_skills)  
 
 
 
