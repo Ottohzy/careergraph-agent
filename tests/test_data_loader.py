@@ -1,6 +1,6 @@
 import pytest
 
-from app.data_loader import (get_candidate_skills, load_candidate_profile, load_jd_text)
+from careergraph.data_loader import (get_candidate_skills, load_candidate_profile, load_jd_text)
 
 def test_load_candidate_profile_valid_json(tmp_path):
     # Create a temporary JSON file with valid content

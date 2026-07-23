@@ -1,4 +1,4 @@
-from app.data_loader import (
+from careergraph.data_loader import (
     get_candidate_skills,
     load_candidate_profile,
     load_jd_text,

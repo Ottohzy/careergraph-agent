@@ -1,6 +1,6 @@
 import pytest
 
-from app.skill_matcher import (find_missing_skills, calculate_match_rate, count_skills,normalize_skills, find_matched_skills)
+from careergraph.skill_matcher import (find_missing_skills, calculate_match_rate, count_skills,normalize_skills, find_matched_skills)
 
 def test_count_skills_normal_input():
     skills = ["Python", "Java", "Python", "C++", "java"]
