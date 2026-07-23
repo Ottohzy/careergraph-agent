@@ -4,6 +4,15 @@ from careergraph.data_loader import (
     load_jd_text,
 )
 
+from .skill_matcher import (
+    find_missing_skills,
+    calculate_match_rate,
+    count_skills,
+    normalize_skills,
+    find_matched_skills,)
+
+
+
 
 def main() -> None:
     candidate = load_candidate_profile(
