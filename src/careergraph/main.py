@@ -1,39 +1,33 @@
-from careergraph.data_loader import (
-    get_candidate_skills,
-    load_candidate_profile,
-    load_jd_text,
+from careergraph.normalizer import normalize_skills
+from careergraph.scorer import calculate_required_rate
+from careergraph.matcher import match_skills
+
+def analyze_skills(required_skills: list[str], candidate_skills: list[str]) -> dict:
+    """
+    Analyze the skills of a candidate against the required skills.
+
+    Args:
+        required_skills (list[str]): A list of required skills.
+        candidate_skills (list[str]): A list of candidate skills.
+
+    Returns:
+        dict: A dictionary containing matched skills, missing skills, and match rate.
+    """
+    normalized_required_skills = normalize_skills(required_skills)
+    normalized_candidate_skills = normalize_skills(candidate_skills)
+
+    matched, missing = match_skills(normalized_required_skills, normalized_candidate_skills)
+    match_rate = calculate_required_rate(matched, normalized_required_skills)
+
+    return {
+        "matched_skills": sorted(matched),
+        "missing_skills": sorted(missing),
+        "match_rate": match_rate
+    }
+
+results = analyze_skills(
+    required_skills=["Python", "Data Analysis", "Machine Learning"],
+    candidate_skills=["python", "data analysis", "communication"]
 )
 
-from .skill_matcher import (
-    find_missing_skills,
-    calculate_match_rate,
-    count_skills,
-    normalize_skills,
-    find_matched_skills,)
-
-
-
-
-def main() -> None:
-    candidate = load_candidate_profile(
-        "data/candidate_profile.json"
-    )
-
-    candidate_skills = get_candidate_skills(candidate)
-
-    jd_text = load_jd_text(
-        "data/sample_jd.txt"
-    )
-
-    print(
-        f"Candidate: {candidate.get('name', 'Unknown')}"
-    )
-    print(
-        f"Candidate skills: {sorted(candidate_skills)}"
-    )
-    print("JD loaded successfully.")
-    print(f"JD length: {len(jd_text)} characters")
-
-
-if __name__ == "__main__":
-    main()
+print(results)

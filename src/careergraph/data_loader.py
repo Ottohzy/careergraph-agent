@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from careergraph.skill_matcher import normalize_skills
+from careergraph.normalizer import normalize_skills
 
 
 def load_candidate_profile(
