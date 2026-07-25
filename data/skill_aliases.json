@@ -1,0 +1,15 @@
+{
+  "py": "Python",
+  "python3": "Python",
+  "js": "JavaScript",
+  "javascript": "JavaScript",
+  "postgres": "PostgreSQL",
+  "postgresql": "PostgreSQL",
+  "docker": "Docker",
+  "git": "Git",
+  "django": "Django",
+  "fastapi": "FastAPI",
+  "retrieval augmented generation": "RAG",
+  "rag": "RAG",
+  "langchain": "LangChain"
+}

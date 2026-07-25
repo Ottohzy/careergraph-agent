@@ -1,0 +1,42 @@
+[
+  {
+    "name": "Python",
+    "category": "programming_language"
+  },
+  {
+    "name": "JavaScript",
+    "category": "programming_language"
+  },
+  {
+    "name": "SQL",
+    "category": "database"
+  },
+  {
+    "name": "PostgreSQL",
+    "category": "database"
+  },
+  {
+    "name": "Docker",
+    "category": "devops"
+  },
+  {
+    "name": "Git",
+    "category": "development_tool"
+  },
+  {
+    "name": "Django",
+    "category": "backend_framework"
+  },
+  {
+    "name": "FastAPI",
+    "category": "backend_framework"
+  },
+  {
+    "name": "RAG",
+    "category": "ai"
+  },
+  {
+    "name": "LangChain",
+    "category": "agent_framework"
+  }
+]
