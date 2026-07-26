@@ -1,5 +1,9 @@
 from careergraph.models import JobSkill
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 PREFERRED_MARKERS = {
     "preferred",
@@ -39,6 +43,13 @@ def extract_skills(
     jd_text: str,
     aliases: dict[str, str],
 ) -> list[JobSkill]:
+    if not isinstance(jd_text, str):
+        raise ValueError(
+            "Job description text must be a string."
+        )
+
+    if not jd_text.strip():
+        return []
     skill_status: dict[str, bool] = {}
 
     for line in jd_text.splitlines():
@@ -54,6 +65,7 @@ def extract_skills(
             elif required:
                 skill_status[skill_name] = True
 
+    logger.info("Extracted %s skills from job description.", len(skill_status))
     return [
         JobSkill(name=name, required=required)
         for name, required in skill_status.items()

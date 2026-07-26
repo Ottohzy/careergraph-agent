@@ -21,3 +21,8 @@ def test_normalize_skills_deduplicates_and_normalizes_values():
     skills = [" Python ", "python", "  JAVA  ", "java", "   "]
     result = normalize_skills(skills)
     assert result == {"python", "java"}
+
+def test_normalize_skills_with_non_string_values():
+    skills = ["Python", 123, None, "Java"]
+    with pytest.raises(ValueError):
+        normalize_skills(skills)

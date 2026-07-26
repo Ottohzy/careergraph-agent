@@ -68,3 +68,36 @@ def test_load_jd_text_nonexistent_file():
     file_path = "nonexistent_file.txt"
     with pytest.raises(FileNotFoundError):
         load_jd_text(file_path)
+
+def test_load_candidate_profile_nonexistent_file():
+    # Test loading a non-existent candidate profile file
+    file_path = "nonexistent_candidate_profile.json"
+    with pytest.raises(FileNotFoundError):
+        load_candidate_profile(file_path)
+
+def test_load_candidate_profile_successful_logging(tmp_path, caplog):
+    # Create a temporary JSON file with valid content
+    candidate_data = {"name": "John Doe", "skills": ["Python", "Java"]}
+    file_path = tmp_path / "candidate_profile.json"
+    file_path.write_text('{"name": "John Doe", "skills": ["Python", "Java"]}', encoding="utf-8")
+
+    with caplog.at_level("INFO"):
+        result = load_candidate_profile(file_path)
+        assert result == candidate_data
+        assert f"Candidate profile loaded successfully from {file_path}" in caplog.text
+
+def test_load_candidate_profile_reject_list_root(tmp_path):
+    # Create a temporary JSON file with a list at the root
+    file_path = tmp_path / "list_root_profile.json"
+    file_path.write_text('["Python", "Java"]', encoding="utf-8")
+
+    with pytest.raises(ValueError, match="Candidate profile must be a JSON object."):
+        load_candidate_profile(file_path)
+
+def test_load_candidate_profile_invalid_json_format(tmp_path):
+    # Create a temporary JSON file with invalid JSON format
+    file_path = tmp_path / "invalid_json_profile.json"
+    file_path.write_text('{"name": "John Doe", "skills": ["Python", "Java"', encoding="utf-8")  # Missing closing bracket
+
+    with pytest.raises(ValueError, match="Invalid JSON format in candidate profile."):
+        load_candidate_profile(file_path)
