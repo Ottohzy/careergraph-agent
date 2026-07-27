@@ -1,7 +1,8 @@
+import argparse
 import logging
 from pathlib import Path
+from typing import Any
 
-from careergraph.normalizer import normalize_skills
 from careergraph.config_loader import (
     load_skill_aliases,
     load_skill_catalog,
@@ -11,8 +12,10 @@ from careergraph.data_loader import (
     load_candidate_profile,
     load_jd_text,
 )
-from careergraph.matcher import match_skills
 from careergraph.jd_extractor import extract_skills
+from careergraph.matcher import match_skills
+from careergraph.normalizer import normalize_skills
+from careergraph.reporter import format_analysis_report
 from careergraph.scorer import calculate_match_rate
 
 
@@ -29,146 +32,202 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-DATA_DIR = Path("data")
-
-CANDIDATE_PROFILE_PATH = (
-    DATA_DIR / "candidate_profile.json"
-)
-
-JD_PATH = (
-    DATA_DIR / "job_description.txt"
-)
-
-SKILL_CATALOG_PATH = (
-    DATA_DIR / "skill_catalog.json"
-)
-
-SKILL_ALIASES_PATH = (
-    DATA_DIR / "skill_aliases.json"
-)
-
-
-def format_skills(skills: set[str]) -> str:
+def parse_args() -> argparse.Namespace:
     """
-    Convert a skill set into a readable string.
+    Parse command-line arguments.
     """
-    if not skills:
-        return "None"
+    parser = argparse.ArgumentParser(
+        description=(
+            "Analyze the skill match between a candidate "
+            "and a job description."
+        ),
+    )
 
-    return ", ".join(sorted(skills))
+    parser.add_argument(
+        "--candidate",
+        type=Path,
+        default=Path(
+            "data/candidate_profile.json"
+        ),
+        help=(
+            "Path to the candidate profile JSON file. "
+            "Default: data/candidate_profile.json"
+        ),
+    )
+
+    parser.add_argument(
+        "--jd",
+        type=Path,
+        default=Path(
+            "data/job_description.txt"
+        ),
+        help=(
+            "Path to the job description text file. "
+            "Default: data/job_description.txt"
+        ),
+    )
+
+    parser.add_argument(
+        "--catalog",
+        type=Path,
+        default=Path(
+            "data/skill_catalog.json"
+        ),
+        help=(
+            "Path to the skill catalog JSON file. "
+            "Default: data/skill_catalog.json"
+        ),
+    )
+
+    parser.add_argument(
+        "--aliases",
+        type=Path,
+        default=Path(
+            "data/skill_aliases.json"
+        ),
+        help=(
+            "Path to the skill aliases JSON file. "
+            "Default: data/skill_aliases.json"
+        ),
+    )
+
+    return parser.parse_args()
 
 
-def print_analysis_result(
-    candidate_name: str,
-    required_skills: set[str],
-    candidate_skills: set[str],
-    matched_skills: set[str],
-    missing_skills: set[str],
-    match_rate: float,
-) -> None:
+def run_analysis(
+    candidate_path: str | Path,
+    jd_path: str | Path,
+    catalog_path: str | Path,
+    aliases_path: str | Path,
+) -> dict[str, Any]:
     """
-    Print the final skill matching result.
+    Run the complete CareerGraph analysis workflow.
     """
-    print()
-    print("===== CareerGraph Analysis =====")
-    print(f"Candidate: {candidate_name}")
-
-    print(
-        "Required skills:",
-        format_skills(required_skills),
-    )
-
-    print(
-        "Candidate skills:",
-        format_skills(candidate_skills),
-    )
-
-    print(
-        "Matched skills:",
-        format_skills(matched_skills),
-    )
-
-    print(
-        "Missing skills:",
-        format_skills(missing_skills),
-    )
-
-    print(f"Match rate: {match_rate:.1%}")
-
-
-def main() -> None:
-    logger.info(
-        "CareerGraph analysis started."
-    )
-
-    # 1. 读取 candidate profile
+    # 1. 读取候选人资料
     candidate_profile = load_candidate_profile(
-        CANDIDATE_PROFILE_PATH
+        candidate_path
     )
 
-    # 2. 获取并标准化候选人技能
+    # 2. 获取候选人技能
     candidate_skills = get_candidate_skills(
         candidate_profile
     )
 
     # 3. 读取 JD
     jd_text = load_jd_text(
-        JD_PATH
+        jd_path
     )
 
-    # 4. 加载技能 catalog
+    # 4. 加载技能目录
     skill_catalog = load_skill_catalog(
-        SKILL_CATALOG_PATH
+        catalog_path
     )
 
-    # 5. 加载技能 aliases
+    # 5. 加载技能别名
     skill_aliases = load_skill_aliases(
-        SKILL_ALIASES_PATH
+        aliases_path
     )
 
-    # 6. 从 JD 中抽取岗位要求技能
+    logger.info(
+        "Loaded %d skills from the skill catalog.",
+        len(skill_catalog),
+    )
+
+    # 6. 抽取 JD 技能
     job_skills = extract_skills(
         jd_text=jd_text,
         aliases=skill_aliases,
     )
-    
-    # Convert JobSkill objects to a set of required skill names
-    required_skills = normalize_skills([
-    skill.name
-    for skill in job_skills
-    if skill.required
-    ])
 
-    # 7. 匹配技能
+    # 7. 获取必需技能
+    required_skills = normalize_skills(
+        [
+            skill.name
+            for skill in job_skills
+            if skill.required
+        ]
+    )
+
+    # 8. 匹配技能
     matched_skills, missing_skills = match_skills(
         required_skills=required_skills,
         candidate_skills=candidate_skills,
     )
 
-    # 8. 计算技能覆盖率
+    # 9. 计算覆盖率
     match_rate = calculate_match_rate(
         required_skills=required_skills,
         matched_skills=matched_skills,
     )
 
-    # 9. 输出结果
     candidate_name = candidate_profile.get(
         "name",
         "Unknown candidate",
     )
 
-    print_analysis_result(
-        candidate_name=candidate_name,
-        required_skills=required_skills,
-        candidate_skills=candidate_skills,
-        matched_skills=matched_skills,
-        missing_skills=missing_skills,
-        match_rate=match_rate,
-    )
+    return {
+        "candidate_name": candidate_name,
+        "candidate_skills": candidate_skills,
+        "required_skills": required_skills,
+        "matched_skills": matched_skills,
+        "missing_skills": missing_skills,
+        "match_rate": match_rate,
+    }
+
+
+def main() -> None:
+    """
+    Parse CLI arguments, run analysis,
+    and print the final report.
+    """
+    args = parse_args()
 
     logger.info(
-        "CareerGraph analysis completed successfully."
+        "CareerGraph analysis started."
     )
+
+    try:
+        result = run_analysis(
+            candidate_path=args.candidate,
+            jd_path=args.jd,
+            catalog_path=args.catalog,
+            aliases_path=args.aliases,
+        )
+
+        report = format_analysis_report(
+            candidate_name=result["candidate_name"],
+            required_skills=result["required_skills"],
+            candidate_skills=result["candidate_skills"],
+            matched_skills=result["matched_skills"],
+            missing_skills=result["missing_skills"],
+            match_rate=result["match_rate"],
+        )
+
+        print()
+        print(report)
+
+    except FileNotFoundError as error:
+        logger.error(
+            "Input file not found: %s",
+            error,
+        )
+
+    except ValueError as error:
+        logger.error(
+            "Invalid input data: %s",
+            error,
+        )
+
+    except TypeError as error:
+        logger.error(
+            "Invalid data type: %s",
+            error,
+        )
+
+    else:
+        logger.info(
+            "CareerGraph analysis completed successfully."
+        )
 
 
 if __name__ == "__main__":
