@@ -3,9 +3,10 @@ import json
 from pathlib import Path
 from typing import Any
 
-from fastapi import logger
+from pydantic import ValidationError
 
 from careergraph.normalizer import normalize_skills
+from careergraph.schema import Candidate
 
 logger = logging.getLogger(__name__)
 
@@ -36,9 +37,23 @@ def load_candidate_profile(
             "Candidate profile must be a JSON object."
         )
 
+    try:
+        validated_profile = Candidate.model_validate(
+            profile
+        )
+    except ValidationError as error:
+        logger.error(
+            "Candidate profile schema validation failed for %s: %s",
+            path,
+            error,
+        )
+        raise ValueError(
+            "Candidate profile does not satisfy schema requirements."
+        )
+
     logger.info(f"Candidate profile loaded successfully from %s", path)
 
-    return profile
+    return validated_profile.model_dump()
 
 
 def get_candidate_skills(
@@ -52,7 +67,26 @@ def get_candidate_skills(
             "Candidate skills must be a list."
         )
 
-    normalized_skills = normalize_skills(skills)
+    skill_names: list[str] = []
+    for skill in skills:
+        if isinstance(skill, str):
+            skill_names.append(skill)
+            continue
+
+        if isinstance(skill, dict):
+            skill_name = skill.get("name")
+            if isinstance(skill_name, str):
+                skill_names.append(skill_name)
+                continue
+
+        logger.error(
+            "Candidate skills must be strings or objects with a name field."
+        )
+        raise ValueError(
+            "Candidate skills must be strings or objects with a name field."
+        )
+
+    normalized_skills = normalize_skills(skill_names)
 
     logger.info("Loaded %s candidate skills.", len(normalized_skills))
 

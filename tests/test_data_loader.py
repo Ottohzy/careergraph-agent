@@ -4,9 +4,24 @@ from careergraph.data_loader import (get_candidate_skills, load_candidate_profil
 
 def test_load_candidate_profile_valid_json(tmp_path):
     # Create a temporary JSON file with valid content
-    candidate_data = {"name": "John Doe", "skills": ["Python", "Java"]}
+    candidate_data = {
+        "candidate_id": "candidate-001",
+        "name": "John Doe",
+        "skills": [
+            {"name": "Python"},
+            {"name": "Java"},
+        ],
+        "experiences": [],
+    }
     file_path = tmp_path / "candidate_profile.json"
-    file_path.write_text('{"name": "John Doe", "skills": ["Python", "Java"]}', encoding="utf-8")
+    file_path.write_text(
+        (
+            '{"candidate_id": "candidate-001", '
+            '"name": "John Doe", '
+            '"skills": [{"name": "Python"}, {"name": "Java"}]}'
+        ),
+        encoding="utf-8",
+    )
 
     result = load_candidate_profile(file_path)
     assert result == candidate_data
@@ -20,7 +35,15 @@ def test_load_candidate_profile_invalid_json(tmp_path):
         load_candidate_profile(file_path)
 
 def test_get_candidate_skills_valid_input():
-    candidate_profile = {"name": "John Doe", "skills": ["Python", "Java", "C++"]}
+    candidate_profile = {
+        "candidate_id": "candidate-001",
+        "name": "John Doe",
+        "skills": [
+            {"name": "Python"},
+            {"name": "Java"},
+            {"name": "C++"},
+        ],
+    }
     result = get_candidate_skills(candidate_profile)
     assert result == {"python", "java", "c++"}
 
@@ -77,9 +100,24 @@ def test_load_candidate_profile_nonexistent_file():
 
 def test_load_candidate_profile_successful_logging(tmp_path, caplog):
     # Create a temporary JSON file with valid content
-    candidate_data = {"name": "John Doe", "skills": ["Python", "Java"]}
+    candidate_data = {
+        "candidate_id": "candidate-001",
+        "name": "John Doe",
+        "skills": [
+            {"name": "Python"},
+            {"name": "Java"},
+        ],
+        "experiences": [],
+    }
     file_path = tmp_path / "candidate_profile.json"
-    file_path.write_text('{"name": "John Doe", "skills": ["Python", "Java"]}', encoding="utf-8")
+    file_path.write_text(
+        (
+            '{"candidate_id": "candidate-001", '
+            '"name": "John Doe", '
+            '"skills": [{"name": "Python"}, {"name": "Java"}]}'
+        ),
+        encoding="utf-8",
+    )
 
     with caplog.at_level("INFO"):
         result = load_candidate_profile(file_path)
@@ -100,4 +138,16 @@ def test_load_candidate_profile_invalid_json_format(tmp_path):
     file_path.write_text('{"name": "John Doe", "skills": ["Python", "Java"', encoding="utf-8")  # Missing closing bracket
 
     with pytest.raises(ValueError, match="Invalid JSON format in candidate profile."):
+        load_candidate_profile(file_path)
+
+
+def test_load_candidate_profile_schema_validation_error(tmp_path):
+    # candidate_id is required by the schema.
+    file_path = tmp_path / "invalid_schema_profile.json"
+    file_path.write_text(
+        '{"name": "John Doe", "skills": [{"name": "Python"}]}',
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="Candidate profile does not satisfy schema requirements."):
         load_candidate_profile(file_path)

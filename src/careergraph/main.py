@@ -17,6 +17,7 @@ from careergraph.matcher import match_skills
 from careergraph.normalizer import normalize_skills
 from careergraph.reporter import format_analysis_report
 from careergraph.scorer import calculate_match_rate
+from careergraph.schema import Analysis, Job
 
 
 logging.basicConfig(
@@ -118,6 +119,21 @@ def run_analysis(
         jd_path
     )
 
+    job_title = next(
+        (
+            line.strip()
+            for line in jd_text.splitlines()
+            if line.strip()
+        ),
+        "Untitled Job",
+    )
+
+    job = Job(
+        job_id=Path(jd_path).stem or "job",
+        title=job_title,
+        raw_text=jd_text,
+    )
+
     # 4. 加载技能目录
     skill_catalog = load_skill_catalog(
         catalog_path
@@ -165,13 +181,37 @@ def run_analysis(
         "Unknown candidate",
     )
 
+    candidate_id = candidate_profile.get(
+        "candidate_id",
+    )
+
+    if not isinstance(candidate_id, str) or not candidate_id.strip():
+        raise ValueError(
+            "Candidate profile must include a valid candidate_id."
+        )
+
+    analysis = Analysis(
+        analysis_id=(
+            f"{candidate_id}-{job.job_id}"
+        ),
+        job_id=job.job_id,
+        candidate_id=candidate_id,
+        required_skills=sorted(required_skills),
+        matched_skills=sorted(matched_skills),
+        missing_skills=sorted(missing_skills),
+        match_rate=match_rate,
+    )
+
     return {
+        "candidate_id": candidate_id,
+        "job_id": job.job_id,
+        "analysis_id": analysis.analysis_id,
         "candidate_name": candidate_name,
         "candidate_skills": candidate_skills,
         "required_skills": required_skills,
         "matched_skills": matched_skills,
         "missing_skills": missing_skills,
-        "match_rate": match_rate,
+        "match_rate": analysis.match_rate,
     }
 
 
