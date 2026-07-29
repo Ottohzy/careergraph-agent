@@ -199,3 +199,11 @@ class LearningTask(BaseModel):
         if not isinstance(value, bool):
             raise ValueError('Learning task completed must be a boolean value')
         return value
+
+class CandidateCreate(BaseModel):
+    name: str = Field(min_length=1, max_length=100, description="The name of the candidate")
+    skills: list[Skill] = Field(default_factory=list, description="List of skills of the candidate")
+    experiences: list[Experience] = Field(default_factory=list, description="List of experiences of the candidate")
+
+class CandidateResponse(CandidateCreate):
+    candidate_id: int = Field(ge=1, description="The unique identifier of the candidate")

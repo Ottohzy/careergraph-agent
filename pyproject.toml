@@ -7,7 +7,16 @@ name = "careergraph"
 version = "0.1.0"
 description = "A career skill matching agent"
 requires-python = ">=3.10"
-
+dependencies = [
+    "fastapi",
+    "uvicorn[standard]",
+    "pydantic",
+]
+[project.optional-dependencies]
+test = [
+    "pytest",
+    "httpx2",
+]
 [tool.setuptools.packages.find]
 where = ["src"]
 
