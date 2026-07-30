@@ -9,11 +9,22 @@ from careergraph.schema import (
     CandidateResponse,
 )
 
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
+from careergraph.database import init_database
+
+@asynccontextmanager
+async def lifespan(
+    app: FastAPI,
+) -> AsyncIterator[None]:
+    init_database()
+    yield
 
 app = FastAPI(
     title="CareerGraph API",
     description="Career skill matching API",
     version="0.1.0",
+    lifespan=lifespan,
 )
 
 
