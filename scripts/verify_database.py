@@ -1,10 +1,10 @@
 from sqlalchemy import select
 
-from careergraph.database import (
+from careergraph.db.database import (
     SessionLocal,
     init_database,
 )
-from careergraph.db_models import (
+from careergraph.db.db_models import (
     CandidateModel,
     ExperienceModel,
     SkillModel,

@@ -1,8 +1,8 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
-from careergraph.database import Base
-from careergraph.db_models import CandidateModel, ExperienceModel, SkillModel
+from careergraph.db.base import Base
+from careergraph.db.db_models import CandidateModel, ExperienceModel, SkillModel
 
 
 def test_create_candidate(

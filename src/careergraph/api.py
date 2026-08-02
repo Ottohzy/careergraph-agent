@@ -11,7 +11,7 @@ from careergraph.schema import (
 
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
-from careergraph.database import init_database
+from careergraph.db.database import init_database
 
 @asynccontextmanager
 async def lifespan(

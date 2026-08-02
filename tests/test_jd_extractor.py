@@ -1,7 +1,7 @@
 import pytest
 
 from careergraph.jd_extractor import extract_skills
-from careergraph.models import JobSkill
+from careergraph.schema import JobSkill
 
 
 def skills_to_dict(

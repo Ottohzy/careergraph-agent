@@ -1,8 +1,8 @@
 from sqlalchemy import create_engine
 from sqlalchemy import inspect
 
-from careergraph.database import Base
-from careergraph import db_models
+from careergraph.db.base import Base
+from careergraph.db import db_models
 
 
 def test_create_all_creates_expected_tables(

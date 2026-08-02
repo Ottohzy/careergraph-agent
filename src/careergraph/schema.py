@@ -200,10 +200,31 @@ class LearningTask(BaseModel):
             raise ValueError('Learning task completed must be a boolean value')
         return value
 
+class ExperienceCreate(BaseModel):
+    title: str = Field(
+        min_length=1,
+        max_length=200,
+    )
+    description: str = Field(
+        min_length=1,
+    )
+
+
 class CandidateCreate(BaseModel):
     name: str = Field(min_length=1, max_length=100, description="The name of the candidate")
-    skills: list[Skill] = Field(default_factory=list, description="List of skills of the candidate")
-    experiences: list[Experience] = Field(default_factory=list, description="List of experiences of the candidate")
+    skills: list[str | Skill] = Field(default_factory=list, description="List of skills of the candidate")
+    experiences: list[ExperienceCreate | Experience] = Field(default_factory=list, description="List of experiences of the candidate")
+
 
 class CandidateResponse(CandidateCreate):
     candidate_id: int = Field(ge=1, description="The unique identifier of the candidate")
+
+
+class CandidateUpdate(BaseModel):
+    name: str | None = Field(
+        default=None,
+        min_length=1,
+        max_length=100,
+    )
+    skills: list[str] | None = None
+    experiences: list[ExperienceCreate] | None = None

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from sqlalchemy import (
     Column,
     ForeignKey,
@@ -12,7 +14,7 @@ from sqlalchemy.orm import (
     relationship,
 )
 
-from careergraph.database import Base
+from careergraph.db.base import Base
 
 
 candidate_skills = Table(
@@ -41,6 +43,8 @@ class CandidateModel(Base):
         String(100),
         nullable=False,
     )
+
+    
 
     skills: Mapped[list["SkillModel"]] = relationship(
         secondary=candidate_skills,
