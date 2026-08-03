@@ -3,10 +3,10 @@ from pathlib import Path
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import (
-    DeclarativeBase,
     Session,
     sessionmaker,
 )
+from careergraph.db.base import Base
 
 
 DATABASE_PATH = Path("careergraph.db")

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from sqlalchemy import (
+    Boolean,
     Column,
     ForeignKey,
     Integer,
@@ -99,4 +100,58 @@ class ExperienceModel(Base):
 
     candidate: Mapped["CandidateModel"] = relationship(
         back_populates="experiences",
+    )
+
+class JobModel(Base):
+    __tablename__ = "jobs"
+
+    id: Mapped[int] = mapped_column(
+        primary_key=True,
+    )
+
+    title: Mapped[str] = mapped_column(
+        String(200),
+        nullable=False,
+    )
+
+    company: Mapped[str] = mapped_column(
+        String(200),
+        nullable=False,
+    )
+
+    raw_text: Mapped[str] = mapped_column(
+        Text,
+        nullable=False,
+    )
+
+    skills: Mapped[list["JobSkillModel"]] = relationship(
+        back_populates="job",
+        cascade="all, delete-orphan",
+    )
+
+class JobSkillModel(Base):
+    __tablename__ = "job_skills"
+
+    id: Mapped[int] = mapped_column(
+        primary_key=True,
+    )
+
+    name: Mapped[str] = mapped_column(
+        String(100),
+        nullable=False,
+    )
+
+    required: Mapped[bool] = mapped_column(
+        Boolean,
+        nullable=False,
+        default=True,
+    )
+
+    job_id: Mapped[int] = mapped_column(
+        ForeignKey("jobs.id"),
+        nullable=False,
+    )
+
+    job: Mapped["JobModel"] = relationship(
+        back_populates="skills",
     )

@@ -18,6 +18,7 @@ from careergraph.normalizer import normalize_skills
 from careergraph.reporter import format_analysis_report
 from careergraph.scorer import calculate_match_rate
 from careergraph.schema import Analysis, Job
+from careergraph.api import app
 
 
 logging.basicConfig(
